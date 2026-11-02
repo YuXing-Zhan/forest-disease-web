@@ -2,9 +2,23 @@
 
 目标仓库：`YuXing-Zhan/forest-disease-web`。网页位于 `apps/web`，原识别后端位于 `services/api`。小程序代码保留在本地用于参考。
 
-## 本地体验
+## 纯网页直连（默认模式）
 
-需要 Node.js 22+、Python 3.12。两个终端分别执行：
+无需运行后端或购买服务器。打开 GitHub Pages 网页，在“接口设置”选择“纯网页直连”，填入个人 Kindwise 和 DeepSeek API Key，点击“检查密钥连接”并保存，然后上传叶片照片开始识别。
+
+图片在浏览器解码、按最长边 1600 像素压缩，转为 JPEG Base64；依次直连 Kindwise `https://api.plant.id/v3/health_assessment` 和 DeepSeek `https://api.deepseek.com/chat/completions`。DeepSeek 使用 `deepseek-flash` 图片输入和固定 JSON 证据复核输出。图片与密钥不会经过本项目的 Python 后端，也不写入 GitHub 源码。模型供应商仍按各自规则处理请求数据。
+
+密钥检查只调用 `/usage_info` 与 `/models`，不进行图像识别。实际分析会消耗用户对应 API 额度。凭据仅存 `sessionStorage`；本机识别历史保存结果 JSON，不包含照片、密钥或供应商访问令牌。直连模式不提供公共密钥或问答解锁公共额度。
+
+可以只配置一个服务：仅配置 Kindwise 时显示专业初筛；仅配置 DeepSeek 时明确显示“无专业初筛，仅图片观察”，结论强度为 D。任一环节失败都不会伪造病名；专业初筛成功、复核失败时仍保留真实初筛。
+
+纯网页流程与后端流程是独立实现，目前直连模式不加载 Python 中的紫荆宿主特例规则。输入完整度、证据分级和照片不能确诊的边界保持一致。取消请求或关闭网页会中断本机流程，无法像服务器任务一样继续查询；供应商已经开始的请求可能仍计费。
+
+浏览器跨域响应已于 2026-11-02 从实际 GitHub Pages 来源验证，两个服务的鉴权检查均可读取 HTTP 200；此结果不保证以后所有网络和供应商配置均不变。官方接口说明：[Kindwise 鉴权](https://www.kindwise.com/handbook)、[DeepSeek 图片输入](https://api-docs.deepseek.com/guides/vision/)。
+
+## 本地体验（直连仅需启动前端）
+
+直连模式仅需 Node.js 22+ 和下方前端命令。选择“使用后端”时才需要 Python 3.12，并另开终端启动后端：
 
 ```powershell
 cd services/api
@@ -18,7 +32,7 @@ npm ci
 npm run dev
 ```
 
-打开 `http://127.0.0.1:5173`。开发服务器自动转发 `/v1` 请求到本机 8000 端口。进入“接口设置”，后端地址留空，测试连接，填写自己的 Kindwise / DeepSeek 密钥并保存。也可在后端配置服务端密钥后，通过原开发者问题解锁通道。
+打开 `http://127.0.0.1:5173`，默认直接调用供应商。需要复用原后端时，在“接口设置”选择“使用后端”，地址留空，测试连接并保存；开发服务器会转发 `/v1` 请求到本机 8000 端口。开发者问答授权仅适用于后端模式。
 
 个人密钥和开发者令牌使用 `sessionStorage`，默认只在当前浏览器会话保留。关闭后浏览器恢复会话可能保留，应使用“清除个人密钥/退出开发者通道”主动清除。记录仅在 `localStorage` 保存任务编号、树种、时间与后端地址，不存密钥和照片。
 
@@ -30,7 +44,7 @@ npm run dev
 4. 推送 `main`，或在 Actions 中手动运行 `Deploy web to GitHub Pages`。
 5. 预期网页地址：`https://yuxing-zhan.github.io/forest-disease-web/`。实际以成功工作流输出的地址为准。
 
-未设置 `VITE_API_BASE_URL` 时网页仍可打开，用户需在“接口设置”自行填写后端地址。GitHub Pages 仅运行静态网页，不能运行 Python 后端。只有网页部署成功不能证明真实识别服务已经上线。
+默认直连模式不需要 `VITE_API_BASE_URL`，只需用户填写自己的密钥。上述后端地址和跨域配置仅用于可选“使用后端”模式。GitHub Pages 仅运行静态网页，不能运行 Python 后端。
 
 原微信 `wx.cloud.callContainer` 通道不能直接由普通浏览器调用。继续使用现有云托管后端时，必须为其配置浏览器能访问的 HTTPS 入口与跨域来源；仅配置 MINIAPP 访问的服务不可直接复用。
 

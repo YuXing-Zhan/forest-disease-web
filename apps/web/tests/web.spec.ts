@@ -31,13 +31,11 @@ test("missing images cannot be submitted; unhealthy control alone is insufficien
   await expect(page.getByRole("alert")).toContainText(
     "请至少选择一张症状叶片图片",
   );
-  await page
-    .getByLabel("选择健康对照")
-    .setInputFiles({
-      name: "leaf.png",
-      mimeType: "image/png",
-      buffer: Buffer.from("test-image"),
-    });
+  await page.getByLabel("选择健康对照").setInputFiles({
+    name: "leaf.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("test-image"),
+  });
   await page.getByRole("button", { name: "开始识别" }).click();
   await expect(page.getByRole("alert")).toContainText(
     "请至少选择一张症状叶片图片",
@@ -136,18 +134,17 @@ test("settings, upload, progress, evidence review, export and history", async ({
     });
   });
   await page.goto("/#settings");
+  await page.getByRole("button", { name: "使用后端", exact: true }).click();
   await page.getByRole("button", { name: "测试连接" }).click();
   await page.getByLabel("测试问题").fill("test-answer");
   await page.getByRole("button", { name: "验证并解锁" }).click();
   await expect(page.getByText("开发者通道已解锁。")).toBeVisible();
   await page.getByRole("link", { name: "病害识别" }).click();
-  await page
-    .getByLabel("选择叶片正面")
-    .setInputFiles({
-      name: "leaf.png",
-      mimeType: "image/png",
-      buffer: Buffer.from("test-image"),
-    });
+  await page.getByLabel("选择叶片正面").setInputFiles({
+    name: "leaf.png",
+    mimeType: "image/png",
+    buffer: Buffer.from("test-image"),
+  });
   await page.getByLabel("树种名称").fill("紫荆");
   await page.getByRole("button", { name: "开始识别" }).click();
   await expect(page.getByText("测试叶斑病").first()).toBeVisible();
@@ -166,6 +163,7 @@ test("backend connection error is actionable and does not unlock channel", async
 }) => {
   await page.route("**/v1/access/configuration", (route) => route.abort());
   await page.goto("/#settings");
+  await page.getByRole("button", { name: "使用后端", exact: true }).click();
   await page.getByRole("button", { name: "测试连接" }).click();
   await expect(page.getByRole("alert")).toContainText("无法连接识别后端");
   await expect(page.getByRole("button", { name: "验证并解锁" })).toHaveCount(0);

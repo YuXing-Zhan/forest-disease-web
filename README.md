@@ -6,9 +6,11 @@
 
 前端：React + TypeScript + Vite，位于 `apps/web`。后端复用 `services/api`。默认由用户配置 API，也支持原有开发者解锁通道。
 
+**默认纯网页直连，无需部署后端。** 在“接口设置”填写自己的 Kindwise / DeepSeek 密钥即可；图片在浏览器处理后直接提交给对应官方 API。也可切换“使用后端”复用原服务，开发者问答通道仅在后端模式可用。
+
 本地运行、GitHub Pages 发布和自有服务器部署见 [WEB_DEPLOY.md](WEB_DEPLOY.md)。识别技术说明见 [识别与大模型复核技术交接.md](识别与大模型复核技术交接.md)。
 
-GitHub Pages 仅托管网页，识别接口需独立部署为 HTTPS 服务；完整同站容器部署使用根目录 `Dockerfile.web`。
+GitHub Pages 托管网页，默认由浏览器直连模型服务；如选择自建后端模式，需要可访问的 HTTPS 后端。完整同站容器部署使用根目录 `Dockerfile.web`。
 
 以下为原小程序与后端开发说明。
 

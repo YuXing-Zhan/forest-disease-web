@@ -34,6 +34,7 @@ import {
   type Settings,
 } from "./api";
 import "./style.css";
+import { diagnoseDirect, testDirectKeys } from "./direct";
 
 const slots: { role: Role; name: string; hint: string; number: string }[] = [
   {
@@ -174,12 +175,21 @@ function App() {
       setError("请至少选择一张症状叶片图片：正面、背面或病斑近照。");
       return;
     }
-    if (!Object.values(access(settings)).some(Boolean)) {
+    if (
+      !(settings.mode === "direct"
+        ? settings.kindwise || settings.deepseek
+        : Object.values(access(settings)).some(Boolean))
+    ) {
       go("settings");
-      setNotice("先填写自己的 API 密钥，或解锁开发者通道。");
+      setNotice(
+        settings.mode === "direct"
+          ? "请先填写自己的 Kindwise 或 DeepSeek API 密钥。"
+          : "先填写自己的 API 密钥，或解锁开发者通道。",
+      );
       return;
     }
-    const base = normalizeBase(settings.base);
+    const base =
+      settings.mode === "direct" ? "local:" : normalizeBase(settings.base);
     running.current = true;
     setBusy(true);
     setError("");
@@ -190,6 +200,42 @@ function App() {
     const abort = new AbortController();
     controller.current = abort;
     try {
+      if (settings.mode === "direct") {
+        const record = await diagnoseDirect(
+          {
+            images: slots
+              .filter((slot) => images[slot.role])
+              .map((slot) => ({
+                role: slot.role,
+                file: images[slot.role]!.file,
+              })),
+            species,
+            notes,
+            location: locationText,
+          },
+          settings,
+          abort.signal,
+          (record) => {
+            setCurrent(record);
+            setActiveStage(stageIndex[record.status] || 1);
+          },
+        );
+        try {
+          remember({
+            id: record.case_id,
+            species: record.species_input || "未填写树种",
+            date: record.created_at,
+            base: "local:",
+            record,
+          });
+          setHistory(readHistory());
+        } catch {
+          setNotice(
+            "识别已完成，但浏览器存储不可用，本次报告未保存。请导出报告。",
+          );
+        }
+        return;
+      }
       const uploaded = await Promise.all(
         slots
           .filter((slot) => images[slot.role])
@@ -261,6 +307,15 @@ function App() {
     setReviewFilter("all");
     go("identify");
     try {
+      if (base === "local:") {
+        const record = readHistory().find(
+          (item) => item.id === id && item.base === base,
+        )?.record;
+        if (!record) throw new Error("此本机报告不存在或已被清除。");
+        setCurrent(record);
+        setActiveStage(4);
+        return;
+      }
       await poll(id, base, abort.signal);
     } catch (e) {
       if (!abort.signal.aborted)
@@ -271,11 +326,18 @@ function App() {
     }
   }
   const count = Object.keys(images).length;
-  const ready = Object.values(access(settings)).some(Boolean);
+  const ready =
+    settings.mode === "direct"
+      ? Boolean(settings.kindwise || settings.deepseek)
+      : Object.values(access(settings)).some(Boolean);
   const result = current?.result;
   const stop = () => {
     controller.current?.abort();
-    setNotice("已停止等待。已创建的任务仍可从识别记录中继续查询。");
+    setNotice(
+      settings.mode === "direct"
+        ? "已中止浏览器请求。服务可能已经处理或计费，请勿立即重复提交。"
+        : "已停止等待。已创建的任务仍可从识别记录中继续查询。",
+    );
   };
   return (
     <div className="app-shell">
@@ -421,7 +483,7 @@ function App() {
                   </div>
                 )}
                 <p className="muted fine">
-                  本机仅保存任务编号、树种和时间。清空记录不会删除服务器上的病例；服务器变更后旧记录可能无法访问。
+                  纯网页模式将报告保存在本机，不保存密钥和照片。后端模式仅保存任务编号；清空记录不会删除服务器上的病例。
                 </p>
               </section>
             </>
@@ -556,7 +618,9 @@ function App() {
                   <div className="submit-row">
                     <span>
                       <ShieldCheck size={17} />
-                      图片仅在提交后发送至识别服务
+                      {settings.mode === "direct"
+                        ? "图片直连模型服务，不经过自建后端"
+                        : "图片仅在提交后发送至识别服务"}
                     </span>
                     <button
                       className="primary"
@@ -623,7 +687,7 @@ function App() {
                       <button className="text-button" onClick={stop}>
                         停止等待
                       </button>
-                    ) : current && !result ? (
+                    ) : current && !result && caseBase !== "local:" ? (
                       <button
                         className="text-button"
                         onClick={() => openCase(current.case_id, caseBase)}
@@ -658,7 +722,8 @@ function App() {
                           <span className="eyebrow">OBSERVATION RESULT</span>
                           <h2>
                             {result.candidates[0]?.display_name ||
-                              "暂无明确候选"}
+                              result.llm_review.reviews[0]?.primary_diagnosis ||
+                              "暂无明确病害候选"}
                           </h2>
                           <p className="muted">
                             {current?.species_input || "树种未提供"} ·{" "}
@@ -788,10 +853,14 @@ function App() {
                               <p key={key}>
                                 {(
                                   {
+                                    image_prepare_ms: "本机图片处理",
                                     quality_check_ms: "图像检查",
                                     kindwise_ms: "专业初筛",
                                     llm_review_ms: "模型复核",
-                                    total_processing_ms: "后端合计",
+                                    total_processing_ms:
+                                      caseBase === "local:"
+                                        ? "识别合计"
+                                        : "后端合计",
                                   } as Record<string, string>
                                 )[key] || key}
                                 ：
@@ -917,6 +986,11 @@ function SettingsPage({
     reportError("");
     setConnected(false);
     try {
+      if (draft.mode === "direct") {
+        const checks = await testDirectKeys(draft);
+        notify(`连接检查（不进行识别）：${checks.join("；")}`);
+        return;
+      }
       const base = normalizeBase(draft.base);
       const config = await request<{
         question: string;
@@ -934,7 +1008,8 @@ function SettingsPage({
   }
   function save() {
     try {
-      const base = normalizeBase(draft.base);
+      const base =
+        draft.mode === "direct" ? draft.base : normalizeBase(draft.base);
       const next = {
         ...draft,
         base,
@@ -989,45 +1064,81 @@ function SettingsPage({
       <PageHeading
         eyebrow="PREFERENCES & CONNECTIONS"
         title="配置你的识别工作台。"
-        description="使用自己的 API，或连接已授权的开发者通道。"
+        description="默认由浏览器直连模型服务，也可切换原有后端通道。"
       />
       <div className="settings-layout">
         <div>
           <section className="panel">
-            <h2>
-              <span className="step-num">01</span>后端连接
-            </h2>
-            <p className="muted">
-              填写识别服务根地址。同站部署或本机开发时可留空。
-            </p>
-            <label>
-              识别服务地址
-              <input
-                type="url"
-                placeholder="https://api.example.com"
-                value={draft.base}
-                onChange={(e) => {
-                  setDraft({
-                    ...draft,
-                    base: e.target.value,
-                    token: "",
-                    expires: "",
-                    providers: [],
-                  });
+            <h2>选择运行方式</h2>
+            <div className="review-tabs" aria-label="运行方式">
+              <button
+                className={draft.mode === "direct" ? "selected" : ""}
+                onClick={() => {
+                  setDraft({ ...draft, mode: "direct" });
                   setConnected(false);
-                  setAvailable(false);
                 }}
-              />
-            </label>
-            <button disabled={working} className="secondary" onClick={check}>
-              {working ? (
-                <LoaderCircle className="spin" size={16} />
-              ) : (
-                <ScanLine size={16} />
-              )}
-              测试连接
-            </button>
+              >
+                纯网页直连
+              </button>
+              <button
+                className={draft.mode === "backend" ? "selected" : ""}
+                onClick={() => {
+                  setDraft({ ...draft, mode: "backend" });
+                  setConnected(false);
+                }}
+              >
+                使用后端
+              </button>
+            </div>
+            <p className="muted">
+              {draft.mode === "direct"
+                ? "无需服务器，图片在本机压缩后直接发送至 Kindwise 和 DeepSeek。仅使用你自己的密钥。切换后请点击保存设置。"
+                : "复用原有识别后端，可使用开发者授权通道。切换后请点击保存设置。"}
+            </p>
           </section>
+          {draft.mode === "backend" && (
+            <>
+              <section className="panel">
+                <h2>
+                  <span className="step-num">01</span>后端连接
+                </h2>
+                <p className="muted">
+                  填写识别服务根地址。同站部署或本机开发时可留空。
+                </p>
+                <label>
+                  识别服务地址
+                  <input
+                    type="url"
+                    placeholder="https://api.example.com"
+                    value={draft.base}
+                    onChange={(e) => {
+                      setDraft({
+                        ...draft,
+                        base: e.target.value,
+                        token: "",
+                        expires: "",
+                        providers: [],
+                      });
+                      setConnected(false);
+                      setAvailable(false);
+                    }}
+                  />
+                </label>
+                <button
+                  disabled={working}
+                  className="secondary"
+                  onClick={check}
+                >
+                  {working ? (
+                    <LoaderCircle className="spin" size={16} />
+                  ) : (
+                    <ScanLine size={16} />
+                  )}
+                  测试连接
+                </button>
+              </section>
+            </>
+          )}
           <section className="panel">
             <h2>
               <span className="step-num">02</span>个人 API 密钥
@@ -1035,6 +1146,13 @@ function SettingsPage({
             <p className="muted">
               Kindwise 用于专业初筛，DeepSeek 用于图片与证据复核，可分别配置。
             </p>
+            {draft.mode === "direct" && (
+              <p className="muted fine">
+                推荐两项都填写。仅填 DeepSeek
+                时只有图片观察，无专业模型初筛。复核使用支持图片的
+                deepseek-flash。
+              </p>
+            )}
             <label>
               Kindwise API Key
               <input
@@ -1060,6 +1178,15 @@ function SettingsPage({
               />
             </label>
             <div className="section-top">
+              {draft.mode === "direct" && (
+                <button
+                  disabled={working}
+                  className="secondary"
+                  onClick={check}
+                >
+                  {working ? "检查中…" : "检查密钥连接"}
+                </button>
+              )}
               <button className="primary" disabled={working} onClick={save}>
                 保存设置
                 <Check size={16} />
@@ -1078,65 +1205,68 @@ function SettingsPage({
               </button>
             </div>
           </section>
-          <section className="panel">
-            <h2>
-              <span className="step-num">03</span>开发者通道
-            </h2>
-            {settings.token && Date.parse(settings.expires) > Date.now() ? (
-              <>
-                <p className="muted">
-                  已启用：{settings.providers.join("、")}
-                  <br />
-                  有效期至 {new Date(settings.expires).toLocaleString("zh-CN")}
-                </p>
-                <button
-                  className="secondary"
-                  onClick={() => {
-                    const next = {
-                      ...settings,
-                      token: "",
-                      expires: "",
-                      providers: [],
-                    };
-                    update(next);
-                    setDraft(next);
-                  }}
-                >
-                  退出开发者通道
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="muted">
-                  先测试后端连接，获取开发者问题。答案由后端验证。
-                </p>
-                {connected && !available && (
-                  <div className="soft-box">
-                    这个后端尚未开放开发者通道，可使用个人 API 密钥。
-                  </div>
-                )}
-                {connected && available && (
-                  <form onSubmit={unlock}>
-                    <label>
-                      {question}
-                      <input
-                        autoComplete="off"
-                        required
-                        maxLength={100}
-                        placeholder="请输入答案"
-                        value={answer}
-                        onChange={(e) => setAnswer(e.target.value)}
-                      />
-                    </label>
-                    <button className="secondary" disabled={working}>
-                      验证并解锁
-                      <ArrowRight size={16} />
-                    </button>
-                  </form>
-                )}
-              </>
-            )}
-          </section>
+          {draft.mode === "backend" && (
+            <section className="panel">
+              <h2>
+                <span className="step-num">03</span>开发者通道
+              </h2>
+              {settings.token && Date.parse(settings.expires) > Date.now() ? (
+                <>
+                  <p className="muted">
+                    已启用：{settings.providers.join("、")}
+                    <br />
+                    有效期至{" "}
+                    {new Date(settings.expires).toLocaleString("zh-CN")}
+                  </p>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      const next = {
+                        ...settings,
+                        token: "",
+                        expires: "",
+                        providers: [],
+                      };
+                      update(next);
+                      setDraft(next);
+                    }}
+                  >
+                    退出开发者通道
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="muted">
+                    先测试后端连接，获取开发者问题。答案由后端验证。
+                  </p>
+                  {connected && !available && (
+                    <div className="soft-box">
+                      这个后端尚未开放开发者通道，可使用个人 API 密钥。
+                    </div>
+                  )}
+                  {connected && available && (
+                    <form onSubmit={unlock}>
+                      <label>
+                        {question}
+                        <input
+                          autoComplete="off"
+                          required
+                          maxLength={100}
+                          placeholder="请输入答案"
+                          value={answer}
+                          onChange={(e) => setAnswer(e.target.value)}
+                        />
+                      </label>
+                      <button className="secondary" disabled={working}>
+                        验证并解锁
+                        <ArrowRight size={16} />
+                      </button>
+                    </form>
+                  )}
+                </>
+              )}
+            </section>
+          )}
         </div>
         <aside className="guide-card">
           <ShieldCheck size={28} />
@@ -1145,7 +1275,9 @@ function SettingsPage({
             密钥默认保存在当前浏览器会话，关闭标签页后通常失效；浏览器恢复会话时可能保留。
           </p>
           <p>
-            提交识别时，密钥会发送至你配置的后端，再由后端调用模型。请连接自己或团队信任的服务。
+            {draft.mode === "direct"
+              ? "直连模式下，密钥仅发送给对应的官方 API，不写入公开源码；本机记录不包含密钥和照片。"
+              : "后端模式下，密钥会发送至你配置的后端。请连接自己或团队信任的服务。"}
           </p>
           <p>本站默认不提供公共识别额度。</p>
         </aside>

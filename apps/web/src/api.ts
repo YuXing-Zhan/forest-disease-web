@@ -48,6 +48,7 @@ export interface Case {
   };
 }
 export interface Settings {
+  mode: "direct" | "backend";
   base: string;
   kindwise: string;
   deepseek: string;
@@ -80,6 +81,7 @@ export function normalizeBase(value: string) {
 }
 export function loadSettings(): Settings {
   const empty: Settings = {
+    mode: "direct",
     base: import.meta.env.VITE_API_BASE_URL || "",
     kindwise: "",
     deepseek: "",
@@ -153,6 +155,7 @@ export interface HistoryItem {
   species: string;
   date: string;
   base: string;
+  record?: Case;
 }
 export function readHistory(): HistoryItem[] {
   try {
