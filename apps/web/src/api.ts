@@ -48,6 +48,7 @@ export interface Case {
   };
 }
 export interface Settings {
+  sharedExpires?: number;
   mode: "direct" | "backend";
   base: string;
   kindwise: string;

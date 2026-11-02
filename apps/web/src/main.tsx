@@ -35,6 +35,7 @@ import {
 } from "./api";
 import "./style.css";
 import { diagnoseDirect, testDirectKeys } from "./direct";
+import { sharedAvailable, sharedActive, checkSharedAnswer } from "./shared";
 
 const slots: { role: Role; name: string; hint: string; number: string }[] = [
   {
@@ -177,13 +178,13 @@ function App() {
     }
     if (
       !(settings.mode === "direct"
-        ? settings.kindwise || settings.deepseek
+        ? settings.kindwise || settings.deepseek || sharedActive(settings)
         : Object.values(access(settings)).some(Boolean))
     ) {
       go("settings");
       setNotice(
         settings.mode === "direct"
-          ? "请先填写自己的 Kindwise 或 DeepSeek API 密钥。"
+          ? "请先在接口设置中解锁公共体验通道，或填写自己的 API 密钥。"
           : "先填写自己的 API 密钥，或解锁开发者通道。",
       );
       return;
@@ -328,7 +329,9 @@ function App() {
   const count = Object.keys(images).length;
   const ready =
     settings.mode === "direct"
-      ? Boolean(settings.kindwise || settings.deepseek)
+      ? Boolean(
+          settings.kindwise || settings.deepseek || sharedActive(settings),
+        )
       : Object.values(access(settings)).some(Boolean);
   const result = current?.result;
   const stop = () => {
@@ -356,6 +359,7 @@ function App() {
             { id: "identify", label: "病害识别", Icon: ScanLine },
             { id: "history", label: "识别记录", Icon: History },
             { id: "settings", label: "接口设置", Icon: Settings2 },
+            { id: "guide", label: "使用说明", Icon: CircleHelp },
           ].map(({ id, label, Icon }) => (
             <a
               key={id}
@@ -392,9 +396,11 @@ function App() {
             <b>
               {page === "settings"
                 ? "接口设置"
-                : page === "history"
-                  ? "识别记录"
-                  : "病害识别"}
+                : page === "guide"
+                  ? "使用说明"
+                  : page === "history"
+                    ? "识别记录"
+                    : "病害识别"}
             </b>
           </span>
           <button className="connection" onClick={() => go("settings")}>
@@ -420,7 +426,9 @@ function App() {
               {notice}
             </div>
           )}
-          {page === "settings" ? (
+          {page === "guide" ? (
+            <GuidePage />
+          ) : page === "settings" ? (
             <SettingsPage
               settings={settings}
               update={updateSettings}
@@ -905,6 +913,55 @@ function App() {
     </div>
   );
 }
+function GuidePage() {
+  return (
+    <>
+      <PageHeading
+        eyebrow="FIELD GUIDE"
+        title="拍清楚，看证据，再判断。"
+        description="给林业观察者的一份简短说明。"
+      />
+      <section className="panel">
+        <h2>四步开始</h2>
+        <div className="evidence">
+          <ol>
+            <li>进入接口设置：填写个人密钥，或回答班级问题启用公共体验。</li>
+            <li>
+              推荐上传叶片正面、背面、病斑近照和健康对照；至少一张症状图即可提交。
+            </li>
+            <li>尽量填写树种，点击开始识别。</li>
+            <li>
+              查看候选、支持与缺失证据，再按建议补拍或送检；记录可回看、报告可导出。
+            </li>
+          </ol>
+        </div>
+        <p className="muted fine">
+          自然光下拍摄，对焦病斑与健康组织交界，避免反光和遮挡。
+        </p>
+        <a className="secondary" href="./快速使用说明.md" download>
+          <Download size={16} />
+          下载极简使用说明
+        </a>
+      </section>
+      <section className="panel">
+        <h2>识别原理：先筛查，再复核</h2>
+        <div className="evidence">
+          <p>
+            专业植物健康模型根据叶片外观提出候选；DeepSeek
+            再结合照片、树种和候选，检查证据是否充分，给出不确定项与后续建议。两次模型判断都不能替代病原检测。
+          </p>
+          <p>
+            四张照片提供互补线索。缺少树种或部分照片仍可分析，但依据减少。模型分数、信息完整度和可信度都不能直接当成实际准确率。
+          </p>
+        </div>
+        <a className="secondary" href="./技术报告_林业版.md" download>
+          <Download size={16} />
+          下载简要技术报告
+        </a>
+      </section>
+    </>
+  );
+}
 function PageHeading({
   eyebrow,
   title,
@@ -1092,7 +1149,7 @@ function SettingsPage({
             </div>
             <p className="muted">
               {draft.mode === "direct"
-                ? "无需服务器，图片在本机压缩后直接发送至 Kindwise 和 DeepSeek。仅使用你自己的密钥。切换后请点击保存设置。"
+                ? "无需服务器，图片在本机处理后直接发送至模型服务。可填写个人密钥或解锁公共体验通道。切换后请保存设置。"
                 : "复用原有识别后端，可使用开发者授权通道。切换后请点击保存设置。"}
             </p>
           </section>
@@ -1205,6 +1262,80 @@ function SettingsPage({
               </button>
             </div>
           </section>
+          {draft.mode === "direct" && (
+            <section className="panel">
+              <h2>公共体验通道</h2>
+              <p className="muted">
+                供小组体验使用。个人填写的密钥优先于公共密钥。
+              </p>
+              {sharedActive(settings) ? (
+                <>
+                  <p className="muted">
+                    公共体验通道已启用，本次会话最长有效 7 天。
+                  </p>
+                  <button
+                    className="secondary"
+                    onClick={() => {
+                      const next = { ...settings, sharedExpires: 0 };
+                      update(next);
+                      setDraft({ ...draft, sharedExpires: 0 });
+                      notify("已退出公共体验通道。");
+                    }}
+                  >
+                    退出公共体验通道
+                  </button>
+                </>
+              ) : sharedAvailable ? (
+                <form
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setWorking(true);
+                    reportError("");
+                    try {
+                      if (!(await checkSharedAnswer(answer)))
+                        throw new Error("答案不正确");
+                      const next = {
+                        ...draft,
+                        mode: "direct" as const,
+                        sharedExpires: Date.now() + 7 * 24 * 60 * 60 * 1000,
+                      };
+                      update(next);
+                      setDraft(next);
+                      setAnswer("");
+                      notify("公共体验通道已解锁，可返回病害识别使用。");
+                    } catch (e) {
+                      reportError((e as Error).message);
+                    } finally {
+                      setWorking(false);
+                    }
+                  }}
+                >
+                  <label>
+                    开发者所在班级是？
+                    <input
+                      required
+                      autoComplete="off"
+                      maxLength={100}
+                      placeholder="请输入答案"
+                      value={answer}
+                      onChange={(e) => setAnswer(e.target.value)}
+                    />
+                  </label>
+                  <button className="secondary" disabled={working}>
+                    验证并启用公共通道
+                    <ArrowRight size={16} />
+                  </button>
+                </form>
+              ) : (
+                <p className="muted">
+                  此版本尚未配置公共体验额度，请使用个人密钥。
+                </p>
+              )}
+              <p className="muted fine">
+                纯网页公共密钥可被访客提取；问答仅用于体验入口，不是安全权限控制。公共额度耗尽时请使用个人密钥。
+              </p>
+            </section>
+          )}
           {draft.mode === "backend" && (
             <section className="panel">
               <h2>
@@ -1279,7 +1410,7 @@ function SettingsPage({
               ? "直连模式下，密钥仅发送给对应的官方 API，不写入公开源码；本机记录不包含密钥和照片。"
               : "后端模式下，密钥会发送至你配置的后端。请连接自己或团队信任的服务。"}
           </p>
-          <p>本站默认不提供公共识别额度。</p>
+          <p>公共体验通道需回答问题启用；图片与请求由模型供应商处理。</p>
         </aside>
       </div>
     </>

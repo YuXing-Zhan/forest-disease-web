@@ -1,4 +1,5 @@
 import type { Case, Review, Role, Settings } from "./api";
+import { effectiveDirectSettings } from "./shared";
 
 export const KINDWISE_URL = "https://api.plant.id/v3";
 export const DEEPSEEK_URL = "https://api.deepseek.com";
@@ -63,6 +64,7 @@ async function providerRequest<T>(
 }
 
 export async function testDirectKeys(settings: Settings): Promise<string[]> {
+  settings = effectiveDirectSettings(settings);
   if (!settings.kindwise.trim() && !settings.deepseek.trim())
     throw new Error("请先填写至少一个 API 密钥。");
   const checks = await Promise.allSettled([
@@ -243,6 +245,7 @@ export async function diagnoseDirect(
   signal: AbortSignal,
   update: (record: Case) => void,
 ): Promise<Case> {
+  settings = effectiveDirectSettings(settings);
   const started = performance.now();
   const record: Case = {
     case_id: crypto.randomUUID(),

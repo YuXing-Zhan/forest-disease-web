@@ -8,7 +8,9 @@
 
 图片在浏览器解码、按最长边 1600 像素压缩，转为 JPEG Base64；依次直连 Kindwise `https://api.plant.id/v3/health_assessment` 和 DeepSeek `https://api.deepseek.com/chat/completions`。DeepSeek 使用 `deepseek-flash` 图片输入和固定 JSON 证据复核输出。图片与密钥不会经过本项目的 Python 后端，也不写入 GitHub 源码。模型供应商仍按各自规则处理请求数据。
 
-密钥检查只调用 `/usage_info` 与 `/models`，不进行图像识别。实际分析会消耗用户对应 API 额度。凭据仅存 `sessionStorage`；本机识别历史保存结果 JSON，不包含照片、密钥或供应商访问令牌。直连模式不提供公共密钥或问答解锁公共额度。
+密钥检查只调用 `/usage_info` 与 `/models`，不进行图像识别。实际分析会消耗对应 API 额度。个人凭据仅存 `sessionStorage`；本机识别历史保存结果 JSON，不包含照片、密钥或供应商访问令牌。
+
+公共体验通道沿用班级问答，接受“智慧林业2401”或“智林2401”。解锁状态在本次会话最长保留7天，个人密钥优先。发布构建从仓库 Secrets 的 `SHARED_KINDWISE_KEY` 和 `SHARED_DEEPSEEK_KEY` 取得公共体验密钥，注入公开网页资源；源码不存明文，但访客仍可提取构建产物中的密钥。问答不是权限安全措施。更换密钥后须重新部署；关闭通道需移除两项 Secret 并重新部署。
 
 可以只配置一个服务：仅配置 Kindwise 时显示专业初筛；仅配置 DeepSeek 时明确显示“无专业初筛，仅图片观察”，结论强度为 D。任一环节失败都不会伪造病名；专业初筛成功、复核失败时仍保留真实初筛。
 
