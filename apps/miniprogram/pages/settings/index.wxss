@@ -1,0 +1,295 @@
+.hero {
+  padding: 20rpx 8rpx 32rpx;
+}
+
+.eyebrow,
+.hero-title,
+.hero-desc,
+.status-label,
+.status-title,
+.section-kicker,
+.section-title,
+.section-desc,
+.field-label,
+.field-tag,
+.security-tip,
+.question-label,
+.question-text,
+.unlock-title,
+.unlock-desc,
+.footer-note text {
+  display: block;
+}
+
+.eyebrow {
+  margin-bottom: 12rpx;
+  color: #5f8f6e;
+  font-size: 20rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+}
+
+.hero-title {
+  font-size: 44rpx;
+  font-weight: 700;
+}
+
+.hero-desc {
+  margin-top: 14rpx;
+  color: #66736a;
+  font-size: 27rpx;
+  line-height: 1.65;
+}
+
+.status-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+  padding: 26rpx 30rpx;
+  border: 1rpx solid #e1e6e1;
+  border-radius: 22rpx;
+  background: #f8faf8;
+}
+
+.status-ready {
+  border-color: #cce1d1;
+  background: #edf7ef;
+}
+
+.status-label {
+  color: #7a867e;
+  font-size: 21rpx;
+}
+
+.status-title {
+  margin-top: 6rpx;
+  font-size: 28rpx;
+  font-weight: 650;
+}
+
+.status-dot {
+  width: 18rpx;
+  height: 18rpx;
+  border-radius: 50%;
+  background: #aab3ac;
+}
+
+.status-ready .status-dot {
+  background: #3b8a55;
+  box-shadow: 0 0 0 9rpx rgba(59, 138, 85, 0.12);
+}
+
+.section-head,
+.field-label-row,
+.button-row,
+.unlocked-panel {
+  display: flex;
+  align-items: center;
+}
+
+.section-head {
+  justify-content: space-between;
+  margin-bottom: 18rpx;
+}
+
+.section-kicker {
+  margin-bottom: 5rpx;
+  color: #6b8a74;
+  font-size: 21rpx;
+}
+
+.section-title {
+  font-size: 32rpx;
+  font-weight: 680;
+}
+
+.recommended,
+.access-badge {
+  padding: 8rpx 15rpx;
+  border-radius: 20rpx;
+  background: #e7f3e9;
+  color: #33734a;
+  font-size: 21rpx;
+}
+
+.access-badge {
+  background: #f2eee3;
+  color: #76653d;
+}
+
+.section-desc {
+  margin-bottom: 25rpx;
+  color: #6f7b73;
+  font-size: 24rpx;
+  line-height: 1.6;
+}
+
+.field-group {
+  margin-top: 23rpx;
+}
+
+.field-label-row {
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
+.field-label {
+  font-size: 26rpx;
+  font-weight: 600;
+}
+
+.field-tag {
+  color: #829087;
+  font-size: 21rpx;
+}
+
+.secret-input,
+.answer-input {
+  box-sizing: border-box;
+  width: 100%;
+  height: 88rpx;
+  padding: 0 22rpx;
+  border: 1rpx solid #d7e2d8;
+  border-radius: 15rpx;
+  background: #f8faf7;
+  font-size: 26rpx;
+}
+
+.button-row {
+  gap: 18rpx;
+  margin-top: 28rpx;
+}
+
+.primary-small,
+.ghost-small,
+.unlock-button {
+  flex: 1;
+  height: 82rpx;
+  border-radius: 41rpx;
+  font-size: 27rpx;
+  line-height: 82rpx;
+}
+
+.primary-small,
+.unlock-button {
+  background: #2f6b45;
+  color: #fff;
+}
+
+.ghost-small {
+  border: 1rpx solid #d5dfd6;
+  background: #fff;
+  color: #58675d;
+}
+
+.security-tip {
+  margin-top: 20rpx;
+  color: #879188;
+  font-size: 22rpx;
+  line-height: 1.55;
+}
+
+.divider-row {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  margin: 4rpx 14rpx 24rpx;
+  color: #98a199;
+  font-size: 22rpx;
+}
+
+.divider {
+  flex: 1;
+  height: 1rpx;
+  background: #dce4dd;
+}
+
+.developer-card {
+  border-color: #d9e4da;
+}
+
+.question-box {
+  padding: 24rpx;
+  border-radius: 18rpx;
+  background: #f5f8f4;
+}
+
+.question-label {
+  color: #748078;
+  font-size: 22rpx;
+}
+
+.question-text {
+  margin: 7rpx 0 20rpx;
+  font-size: 29rpx;
+  font-weight: 620;
+}
+
+.answer-input {
+  background: #fff;
+}
+
+.unlock-button {
+  width: 100%;
+  margin-top: 20rpx;
+}
+
+.unlocked-panel {
+  padding: 24rpx;
+  border-radius: 18rpx;
+  background: #edf7ef;
+}
+
+.unlock-mark {
+  display: flex;
+  width: 54rpx;
+  height: 54rpx;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: #3a8352;
+  color: #fff;
+  font-size: 29rpx;
+}
+
+.unlock-copy {
+  flex: 1;
+  margin-left: 18rpx;
+}
+
+.unlock-title {
+  font-size: 27rpx;
+  font-weight: 650;
+}
+
+.unlock-desc {
+  margin-top: 5rpx;
+  color: #6b7a70;
+  font-size: 21rpx;
+}
+
+.text-button {
+  margin: 0;
+  padding: 0 10rpx;
+  background: transparent;
+  color: #65756a;
+  font-size: 23rpx;
+  line-height: 1.8;
+}
+
+.unavailable-panel {
+  padding: 24rpx;
+  border-radius: 16rpx;
+  background: #f4f5f3;
+  color: #7a827d;
+  font-size: 24rpx;
+  line-height: 1.5;
+}
+
+.footer-note {
+  padding: 2rpx 12rpx 28rpx;
+  color: #7f8982;
+  font-size: 22rpx;
+  line-height: 1.6;
+}

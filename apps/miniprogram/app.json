@@ -1,0 +1,32 @@
+{
+  "pages": [
+    "pages/identify/index",
+    "pages/settings/index",
+    "pages/progress/index",
+    "pages/result/index"
+  ],
+  "window": {
+    "backgroundColor": "#F3F7F1",
+    "backgroundTextStyle": "light",
+    "navigationBarBackgroundColor": "#2F6B45",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "林木病害识别"
+  },
+  "tabBar": {
+    "color": "#718076",
+    "selectedColor": "#2F6B45",
+    "backgroundColor": "#FFFFFF",
+    "borderStyle": "white",
+    "list": [
+      {
+        "pagePath": "pages/identify/index",
+        "text": "识别"
+      },
+      {
+        "pagePath": "pages/settings/index",
+        "text": "设置"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json"
+}

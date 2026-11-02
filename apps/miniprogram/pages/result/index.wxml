@@ -1,0 +1,96 @@
+<view class="page">
+  <view wx:if="{{loading}}" class="card loading">正在加载结果…</view>
+  <view wx:elif="{{errorMessage}}" class="card error">{{errorMessage}}</view>
+
+  <block wx:else wx:if="{{diseaseCase.result}}">
+    <view class="summary-card card">
+      <view class="summary-top">
+        <view>
+          <text class="eyebrow">诊断强度 {{diseaseCase.result.strength}} 级</text>
+          <text class="result-title">{{strengthLabel}}</text>
+        </view>
+        <view class="score-ring">
+          <text class="score">{{diseaseCase.result.information.score}}</text>
+          <text class="score-unit">完整度</text>
+        </view>
+      </view>
+      <text class="summary-note">诊断强度与信息完整度是两个不同指标。</text>
+    </view>
+
+    <view class="card">
+      <text class="section-title">识别候选</text>
+      <view class="candidate" wx:for="{{diseaseCase.result.candidates}}" wx:key="candidate_id">
+        <view class="candidate-head">
+          <text class="candidate-name">{{item.display_name}}</text>
+          <text class="evidence">证据：{{item.evidence_level}}</text>
+        </view>
+        <text class="list-item" wx:for="{{item.supporting_evidence}}" wx:for-item="evidenceItem" wx:key="*this">✓ {{evidenceItem}}</text>
+        <text class="conflict" wx:for="{{item.conflicting_evidence}}" wx:for-item="conflictItem" wx:key="*this">! {{conflictItem}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <view class="review-title-row">
+        <text class="section-title review-title">大模型复核</text>
+        <text class="agreement">{{diseaseCase.result.llm_review.agreement}}</text>
+      </view>
+      <text class="body-copy">{{diseaseCase.result.llm_review.summary}}</text>
+
+      <view wx:if="{{reviewOptions.length}}" class="review-switch">
+        <text class="switch-item {{reviewFilter === item.filter ? 'active' : ''}}" wx:for="{{reviewOptions}}" wx:key="filter" data-filter="{{item.filter}}" bindtap="selectReview">{{item.label}}</text>
+      </view>
+
+      <view class="model-review" wx:for="{{reviewCards}}" wx:key="provider">
+        <view class="model-head">
+          <text class="model-name">{{item.provider}} · {{item.model}}</text>
+          <text class="model-status">可信度：{{item.confidence_level}}</text>
+        </view>
+        <text wx:if="{{item.primary_diagnosis}}" class="review-diagnosis">{{item.primary_diagnosis}}</text>
+        <text class="body-copy">{{item.conclusion}}</text>
+
+        <text class="review-label">可信度依据</text>
+        <text class="review-line">{{item.confidence_basis}}</text>
+
+        <text wx:if="{{item.confirmed_evidence.length}}" class="review-label">确实证据</text>
+        <text class="review-line" wx:for="{{item.confirmed_evidence}}" wx:for-item="evidenceItem" wx:key="*this">• {{evidenceItem}}</text>
+
+        <text wx:if="{{item.supporting_evidence.length}}" class="review-label">支持证据</text>
+        <text class="review-line" wx:for="{{item.supporting_evidence}}" wx:for-item="supportItem" wx:key="*this">• {{supportItem}}</text>
+
+        <text wx:if="{{item.uncertainties.length}}" class="review-label uncertainty-label">不确定与冲突</text>
+        <text class="review-line uncertainty" wx:for="{{item.uncertainties}}" wx:for-item="uncertainItem" wx:key="*this">• {{uncertainItem}}</text>
+
+        <text wx:if="{{item.differential_diagnoses.length}}" class="review-label">需要排除</text>
+        <text class="review-line" wx:for="{{item.differential_diagnoses}}" wx:for-item="differentialItem" wx:key="*this">• {{differentialItem}}</text>
+
+        <text wx:if="{{item.next_actions.length}}" class="review-label">后续建议</text>
+        <text class="review-line" wx:for="{{item.next_actions}}" wx:for-item="actionItem" wx:key="*this">{{index + 1}}. {{actionItem}}</text>
+        <text wx:if="{{item.warning}}" class="model-warning">{{item.warning}}</text>
+      </view>
+    </view>
+
+    <view class="card">
+      <text class="section-title">建议下一步</text>
+      <text class="action" wx:for="{{diseaseCase.result.next_actions}}" wx:key="*this">{{index + 1}}. {{item}}</text>
+    </view>
+
+    <view wx:if="{{timingRows.length}}" class="card">
+      <text class="section-title">本次耗时</text>
+      <view class="timing-row" wx:for="{{timingRows}}" wx:key="label">
+        <text>{{item.label}}</text>
+        <text class="timing-value">{{item.value}}</text>
+      </view>
+      <text wx:if="{{sizeSummary}}" class="size-summary">服务端图片压缩：{{sizeSummary}}</text>
+    </view>
+
+    <view wx:if="{{diseaseCase.result.information.missing.length}}" class="card missing-card">
+      <text class="section-title">缺少的信息</text>
+      <view class="tags">
+        <text class="tag" wx:for="{{diseaseCase.result.information.missing}}" wx:key="*this">{{item}}</text>
+      </view>
+    </view>
+
+    <text class="safety-note">{{diseaseCase.result.safety_note}}</text>
+    <button class="primary-button" bindtap="startNewCase">识别另一片叶子</button>
+  </block>
+</view>

@@ -1,0 +1,114 @@
+<view class="page">
+  <view class="hero">
+    <text class="eyebrow">SERVICE ACCESS</text>
+    <text class="hero-title">接口与访问设置</text>
+    <text class="hero-desc">识别服务默认不附带 API。你可以使用自己的密钥，或通过小组验证临时启用开发者通道。</text>
+  </view>
+
+  <view class="status-card {{enabledProviders.length ? 'status-ready' : ''}}">
+    <view>
+      <text class="status-label">当前状态</text>
+      <text class="status-title">{{accessSummary}}</text>
+    </view>
+    <view class="status-dot"></view>
+  </view>
+
+  <view class="card">
+    <view class="section-head">
+      <view>
+        <text class="section-kicker">方案一</text>
+        <text class="section-title">使用自己的 API</text>
+      </view>
+      <text class="recommended">推荐</text>
+    </view>
+    <text class="section-desc">密钥只保存在当前微信设备，提交识别时经加密连接发送到后端，不写入病例记录。</text>
+
+    <view class="field-group">
+      <view class="field-label-row">
+        <text class="field-label">Kindwise API Key</text>
+        <text class="field-tag">专业初筛</text>
+      </view>
+      <input
+        class="secret-input"
+        password
+        maxlength="512"
+        placeholder="填写 plant.id / plant.health API Key"
+        value="{{kindwiseApiKey}}"
+        bindinput="onKindwiseInput"
+      />
+    </view>
+
+    <view class="field-group">
+      <view class="field-label-row">
+        <text class="field-label">DeepSeek API Key</text>
+        <text class="field-tag">结果复核</text>
+      </view>
+      <input
+        class="secret-input"
+        password
+        maxlength="512"
+        placeholder="填写以 sk- 开头的 API Key"
+        value="{{deepseekApiKey}}"
+        bindinput="onDeepseekInput"
+      />
+    </view>
+
+    <view class="button-row">
+      <button class="primary-small" bindtap="saveKeys">保存设置</button>
+      <button class="ghost-small" bindtap="clearKeys">清除密钥</button>
+    </view>
+    <text class="security-tip">建议为本工具单独创建低额度密钥，并在服务商控制台设置用量预警。</text>
+  </view>
+
+  <view class="divider-row">
+    <view class="divider"></view>
+    <text>或者</text>
+    <view class="divider"></view>
+  </view>
+
+  <view class="card developer-card">
+    <view class="section-head">
+      <view>
+        <text class="section-kicker">方案二</text>
+        <text class="section-title">小组开发者通道</text>
+      </view>
+      <text class="access-badge">限内部体验</text>
+    </view>
+
+    <view wx:if="{{developerUnlocked}}" class="unlocked-panel">
+      <text class="unlock-mark">✓</text>
+      <view class="unlock-copy">
+        <text class="unlock-title">开发者通道已启用</text>
+        <text class="unlock-desc">有效期至 {{expiresText}}</text>
+      </view>
+      <button class="text-button" bindtap="lockDeveloperAccess">关闭</button>
+    </view>
+
+    <block wx:else>
+      <text class="section-desc">正确回答小组验证问题后，可在有效期内使用开发者配置的接口额度。</text>
+      <view wx:if="{{developerAccessAvailable}}" class="question-box">
+        <text class="question-label">验证问题</text>
+        <text class="question-text">{{question}}</text>
+        <input
+          class="answer-input"
+          maxlength="100"
+          placeholder="请输入答案"
+          value="{{answer}}"
+          bindinput="onAnswerInput"
+          confirm-type="done"
+          bindconfirm="unlock"
+        />
+        <button class="unlock-button" loading="{{unlocking}}" bindtap="unlock">
+          {{unlocking ? '正在验证…' : '验证并启用'}}
+        </button>
+      </view>
+      <view wx:else class="unavailable-panel">
+        <text>开发者通道暂未配置，请使用自己的 API Key。</text>
+      </view>
+    </block>
+  </view>
+
+  <view class="footer-note">
+    <text>API Key 属于敏感凭证，请勿截图、转发或填写他人的密钥。清除小程序数据后，本机保存的设置也会被移除。</text>
+  </view>
+</view>

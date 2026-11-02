@@ -1,0 +1,100 @@
+.progress-page {
+  display: flex;
+  box-sizing: border-box;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.progress-card {
+  padding: 70rpx 40rpx;
+  text-align: center;
+}
+
+.leaf-loader {
+  position: relative;
+  width: 130rpx;
+  height: 90rpx;
+  margin: 0 auto 42rpx;
+}
+
+.leaf {
+  position: absolute;
+  width: 54rpx;
+  height: 34rpx;
+  border-radius: 54rpx 8rpx 54rpx 8rpx;
+  background: #4b8a5e;
+  animation: pulse 1.4s ease-in-out infinite;
+}
+
+.leaf-one {
+  top: 4rpx;
+  left: 38rpx;
+}
+
+.leaf-two {
+  top: 44rpx;
+  left: 6rpx;
+  animation-delay: 0.2s;
+}
+
+.leaf-three {
+  top: 44rpx;
+  right: 6rpx;
+  animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.88);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.08);
+  }
+}
+
+.progress-title,
+.progress-copy,
+.case-id {
+  display: block;
+}
+
+.progress-title {
+  font-size: 36rpx;
+  font-weight: 700;
+}
+
+.progress-copy {
+  margin-top: 18rpx;
+  color: #6f7b72;
+  font-size: 26rpx;
+  line-height: 1.6;
+}
+
+.case-id {
+  margin-top: 34rpx;
+  color: #98a19a;
+  font-size: 21rpx;
+  word-break: break-all;
+}
+
+.error-card {
+  padding: 24rpx;
+  border-radius: 18rpx;
+  background: #fff2ef;
+  color: #983f38;
+  font-size: 26rpx;
+  text-align: center;
+}
+
+.retry-button {
+  width: 280rpx;
+  margin-top: 24rpx;
+  border-radius: 34rpx;
+  background: #ffffff;
+  color: #7c3a34;
+  font-size: 26rpx;
+}
+

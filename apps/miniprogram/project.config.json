@@ -1,0 +1,14 @@
+{
+  "appid": "wx9a99c231eabb3c28",
+  "compileType": "miniprogram",
+  "libVersion": "3.6.4",
+  "miniprogramRoot": "./",
+  "projectname": "forest-leaf-disease",
+  "setting": {
+    "es6": true,
+    "minified": true,
+    "postcss": true,
+    "urlCheck": false,
+    "useCompilerPlugins": ["typescript"]
+  }
+}

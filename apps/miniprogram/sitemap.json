@@ -1,0 +1,5 @@
+{
+  "desc": "林木叶片病害识别工具页面索引",
+  "rules": [{ "action": "disallow", "page": "*" }]
+}
+

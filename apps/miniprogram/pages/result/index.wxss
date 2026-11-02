@@ -1,0 +1,276 @@
+.loading,
+.error {
+  margin-top: 80rpx;
+  color: #68766d;
+  text-align: center;
+}
+
+.error {
+  color: #9b423b;
+}
+
+.summary-card {
+  overflow: hidden;
+  background: linear-gradient(145deg, #255c3b, #3f7d52);
+  color: #ffffff;
+}
+
+.summary-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.eyebrow,
+.result-title,
+.summary-note,
+.section-title,
+.body-copy,
+.action,
+.safety-note,
+.list-item,
+.conflict {
+  display: block;
+}
+
+.eyebrow {
+  opacity: 0.76;
+  font-size: 24rpx;
+}
+
+.result-title {
+  margin-top: 10rpx;
+  font-size: 42rpx;
+  font-weight: 700;
+}
+
+.score-ring {
+  display: flex;
+  width: 120rpx;
+  height: 120rpx;
+  border: 5rpx solid rgba(255, 255, 255, 0.36);
+  border-radius: 50%;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+.score {
+  font-size: 38rpx;
+  font-weight: 700;
+  line-height: 1;
+}
+
+.score-unit {
+  margin-top: 7rpx;
+  opacity: 0.76;
+  font-size: 19rpx;
+}
+
+.summary-note {
+  margin-top: 30rpx;
+  opacity: 0.76;
+  font-size: 22rpx;
+}
+
+.section-title {
+  margin-bottom: 22rpx;
+  font-size: 31rpx;
+  font-weight: 650;
+}
+
+.review-title-row,
+.model-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.review-title {
+  margin-bottom: 0;
+}
+
+.agreement,
+.model-status {
+  flex-shrink: 0;
+  padding: 5rpx 14rpx;
+  border-radius: 20rpx;
+  background: #e8f2e9;
+  color: #326647;
+  font-size: 21rpx;
+}
+
+.review-switch {
+  display: flex;
+  gap: 10rpx;
+  margin-top: 24rpx;
+  padding: 7rpx;
+  border-radius: 16rpx;
+  background: #f2f5f2;
+}
+
+.switch-item {
+  flex: 1;
+  padding: 12rpx 6rpx;
+  border-radius: 12rpx;
+  color: #647168;
+  font-size: 21rpx;
+  text-align: center;
+}
+
+.switch-item.active {
+  background: #ffffff;
+  color: #285d3d;
+  font-weight: 600;
+  box-shadow: 0 2rpx 10rpx rgba(36, 78, 51, 0.08);
+}
+
+.model-review {
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border: 1rpx solid #e1e9e2;
+  border-radius: 20rpx;
+  background: #fbfdfb;
+}
+
+.model-review + .model-review {
+  margin-top: 18rpx;
+}
+
+.model-name {
+  color: #294d37;
+  font-size: 24rpx;
+  font-weight: 600;
+}
+
+.review-diagnosis,
+.review-label,
+.review-line,
+.model-warning {
+  display: block;
+}
+
+.review-diagnosis {
+  margin-top: 18rpx;
+  color: #1f3f2c;
+  font-size: 29rpx;
+  font-weight: 650;
+}
+
+.review-label {
+  margin-top: 20rpx;
+  color: #2f5e41;
+  font-size: 23rpx;
+  font-weight: 600;
+}
+
+.review-line {
+  margin-top: 7rpx;
+  color: #56645b;
+  font-size: 23rpx;
+  line-height: 1.55;
+}
+
+.uncertainty-label,
+.uncertainty {
+  color: #8b5b3f;
+}
+
+.model-warning {
+  margin-top: 18rpx;
+  padding-top: 16rpx;
+  border-top: 1rpx dashed #dce5dd;
+  color: #7b857e;
+  font-size: 21rpx;
+  line-height: 1.5;
+}
+
+.candidate + .candidate {
+  margin-top: 28rpx;
+  padding-top: 28rpx;
+  border-top: 1rpx solid #e4ece5;
+}
+
+.candidate-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 20rpx;
+  margin-bottom: 16rpx;
+}
+
+.candidate-name {
+  font-size: 29rpx;
+  font-weight: 600;
+}
+
+.evidence {
+  flex-shrink: 0;
+  padding: 5rpx 14rpx;
+  border-radius: 20rpx;
+  background: #e8f2e9;
+  color: #326647;
+  font-size: 21rpx;
+}
+
+.list-item,
+.conflict,
+.body-copy,
+.action {
+  margin-top: 10rpx;
+  color: #55645a;
+  font-size: 25rpx;
+  line-height: 1.6;
+}
+
+.conflict {
+  color: #976042;
+}
+
+.missing-card {
+  border-color: #eadfc8;
+  background: #fffaf0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12rpx;
+}
+
+.tag {
+  padding: 8rpx 18rpx;
+  border-radius: 26rpx;
+  background: #f2e7cf;
+  color: #715d36;
+  font-size: 23rpx;
+}
+
+.safety-note {
+  margin: 8rpx 10rpx 28rpx;
+  color: #7d8780;
+  font-size: 22rpx;
+  line-height: 1.6;
+}
+
+.timing-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 13rpx 0;
+  border-bottom: 1rpx solid #edf1ed;
+  color: #59665e;
+  font-size: 24rpx;
+}
+
+.timing-value {
+  color: #285d3d;
+  font-weight: 600;
+}
+
+.size-summary {
+  display: block;
+  margin-top: 18rpx;
+  color: #7a857d;
+  font-size: 21rpx;
+}

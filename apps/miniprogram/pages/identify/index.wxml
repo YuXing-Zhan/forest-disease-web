@@ -1,0 +1,64 @@
+<view class="page">
+  <view class="hero">
+    <text class="hero-title">叶片病害辅助识别</text>
+    <text class="hero-desc">推荐上传四张照片；只要有一张清晰的症状叶片图也可以提交。</text>
+  </view>
+
+  <view class="api-status {{apiReady ? 'api-ready' : ''}}" bindtap="openSettings">
+    <view class="api-status-dot"></view>
+    <view class="api-status-copy">
+      <text class="api-status-label">识别服务</text>
+      <text class="api-status-title">{{apiStatusText}}</text>
+    </view>
+    <text class="api-status-action">设置 ›</text>
+  </view>
+
+  <view class="card">
+    <view class="section-head">
+      <text class="section-title">拍摄叶片</text>
+      <text class="section-note">四张均为推荐项</text>
+    </view>
+    <view class="image-grid">
+      <view class="image-slot" wx:for="{{slots}}" wx:key="role">
+        <view class="image-box" bindtap="chooseImage" data-index="{{index}}">
+          <image wx:if="{{item.tempPath}}" class="preview" src="{{item.tempPath}}" mode="aspectFill" />
+          <view wx:else class="empty-image">
+            <text class="plus">＋</text>
+            <text>拍照或选择</text>
+          </view>
+        </view>
+        <view class="slot-copy">
+          <text class="slot-title">{{item.title}}</text>
+          <text class="slot-hint">{{item.hint}}</text>
+          <text wx:if="{{item.tempPath}}" class="remove" catchtap="removeImage" data-index="{{index}}">移除</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <view class="card">
+    <text class="section-title">树种信息</text>
+    <input
+      class="species-input"
+      maxlength="200"
+      placeholder="例如：杨树；不知道可以留空"
+      value="{{speciesInput}}"
+      bindinput="onSpeciesInput"
+    />
+    <text class="field-help">填写树种通常可以明显缩小候选范围，但不是提交门槛。</text>
+  </view>
+
+  <view class="notice">
+    <text>识别结果用于病害初筛与补充采样建议，不替代实验室检测或专家现场诊断。</text>
+  </view>
+
+  <view wx:if="{{errorMessage}}" class="inline-error">
+    <text>{{errorMessage}}</text>
+  </view>
+
+  <button
+    class="primary-button"
+    disabled="{{!canSubmit || submitting || !apiReady}}"
+    bindtap="submit"
+  >{{submitting ? '正在提交…' : (apiReady ? '开始识别' : '请先配置识别接口')}}</button>
+</view>

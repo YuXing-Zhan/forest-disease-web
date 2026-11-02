@@ -1,0 +1,15 @@
+**/node_modules
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/dist
+**/.env
+**/.env.*
+**/*.db
+.git
+微信web开发者工具
+wechattool
+services/api/data
+preview*
+upload-*.json
+.web-test

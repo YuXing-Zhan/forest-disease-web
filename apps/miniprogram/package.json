@@ -1,0 +1,14 @@
+{
+  "name": "forest-leaf-disease-miniprogram",
+  "private": true,
+  "version": "0.1.0",
+  "scripts": {
+    "typecheck": "tsc --noEmit",
+    "test:e2e": "node tests/e2e.cjs",
+    "view:case": "node tests/view-case.cjs"
+  },
+  "devDependencies": {
+    "miniprogram-automator": "^0.12.1",
+    "typescript": "^5.9.3"
+  }
+}

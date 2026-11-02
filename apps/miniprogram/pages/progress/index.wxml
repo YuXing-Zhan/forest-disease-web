@@ -1,0 +1,18 @@
+<view class="page progress-page">
+  <view class="progress-card card">
+    <view class="leaf-loader">
+      <view class="leaf leaf-one"></view>
+      <view class="leaf leaf-two"></view>
+      <view class="leaf leaf-three"></view>
+    </view>
+    <text class="progress-title">{{statusText}}</text>
+    <text class="progress-copy">系统正在综合图片质量、树种信息和候选证据。</text>
+    <text class="case-id">病例编号：{{caseId}}</text>
+  </view>
+
+  <view wx:if="{{errorMessage}}" class="error-card">
+    <text>{{errorMessage}}</text>
+    <button class="retry-button" bindtap="backToIdentify">返回重新提交</button>
+  </view>
+</view>
+
