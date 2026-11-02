@@ -173,7 +173,7 @@ function parseHealth(response: HealthResponse): {
           c.probability! >= 0.65 ? "高" : c.probability! >= 0.3 ? "中" : "低",
         supporting_evidence: [
           `专业模型返回候选：${name}`,
-          `供应商分数：${(c.probability! * 100).toFixed(1)}%（不是实测准确率）`,
+          `候选匹配分数：${(c.probability! * 100).toFixed(1)}%`,
           `模型版本：${response.model_version || "未提供"}`,
         ],
         conflicting_evidence: isPlant
@@ -298,7 +298,7 @@ export async function diagnoseDirect(
       ? missing.slice(0, 3).map((m) => `建议补充：${m}`)
       : ["结合现场情况复核；需要时进行镜检或病原检测"],
     safety_note:
-      "结果仅供叶片病害辅助初筛，供应商分数与模型可信度不是实测准确率，不替代专家现场诊断或实验室检测。",
+      "建议结合树种、现场症状与病斑发展过程核对候选，按需补拍、持续观察或采集样品。",
   };
   let initialError = "";
   record.status = "identifying";

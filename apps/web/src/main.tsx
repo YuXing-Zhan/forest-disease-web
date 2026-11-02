@@ -793,7 +793,7 @@ function App() {
                               items={c.supporting_evidence}
                             />
                             <Evidence
-                              title="冲突与限制"
+                              title="待核对线索"
                               items={c.conflicting_evidence}
                             />
                           </article>
@@ -906,7 +906,7 @@ function App() {
           )}
           <footer className="footer">
             <span>林叶 · 用证据理解每一片叶子</span>
-            <span>辅助初筛，不能替代实验室检测与专家现场诊断。</span>
+            <span>用于林木健康巡查、症状记录与后续采样。</span>
           </footer>
         </main>
       </div>
@@ -947,11 +947,36 @@ function GuidePage() {
         <h2>识别原理：先筛查，再复核</h2>
         <div className="evidence">
           <p>
-            专业植物健康模型根据叶片外观提出候选；DeepSeek
-            再结合照片、树种和候选，检查证据是否充分，给出不确定项与后续建议。两次模型判断都不能替代病原检测。
+            Kindwise plant.health
+            从数十万量级的专家标注图像中学习植物健康特征。可以把识别过程理解为综合辨认病斑颜色、形状、纹理与分布，将叶片外观归入较相符的健康类别。
           </p>
           <p>
-            四张照片提供互补线索。缺少树种或部分照片仍可分析，但依据减少。模型分数、信息完整度和可信度都不能直接当成实际准确率。
+            根据官方模型说明，新版服务内部有两个分类子模型，各自给出类别匹配概率，再合成为最终候选；另有健康状态分类器提供整体健康判断。网页据此呈现候选病害与证据等级。
+          </p>
+          <p>
+            随后由 DeepSeek
+            结合照片、树种、现场描述和专业候选，核对症状与宿主关系，整理已有事实、关键证据、待补信息及下一步建议。正面、背面、近照和健康对照分别提供互补的观察线索。
+          </p>
+          <p>
+            阅读时先看候选，再看证据。信息完整度反映采样是否齐备，结论强度反映当前判断依据，复核可信度说明大模型意见的支撑情况。
+          </p>
+          <p className="fine">
+            资料：
+            <a
+              href="https://www.kindwise.com/plant-health"
+              target="_blank"
+              rel="noreferrer"
+            >
+              Kindwise 产品介绍
+            </a>{" "}
+            ·{" "}
+            <a
+              href="https://www.kindwise.com/post/plant-health-major-expansion-from-90-to-500-diseases"
+              target="_blank"
+              rel="noreferrer"
+            >
+              官方模型原理说明
+            </a>
           </p>
         </div>
         <a className="secondary" href="./技术报告_林业版.md" download>
@@ -1332,7 +1357,7 @@ function SettingsPage({
                 </p>
               )}
               <p className="muted fine">
-                纯网页公共密钥可被访客提取；问答仅用于体验入口，不是安全权限控制。公共额度耗尽时请使用个人密钥。
+                公共通道使用共享体验额度；也可填写个人密钥，按自己的账户额度开展识别。
               </p>
             </section>
           )}
